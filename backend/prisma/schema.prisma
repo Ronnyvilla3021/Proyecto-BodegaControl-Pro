@@ -22,4 +22,45 @@ model Usuario {
   rol       Rol
   activo    Boolean  @default(true)
   creadoEn  DateTime @default(now())
+  movimientos MovimientoInventario[]
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+}
+
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  productos Producto[]
+  creadoEn  DateTime   @default(now())
+}
+
+model Producto {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique
+  nombre      String
+  precio      Decimal    @db.Decimal(10, 2)
+  stock       Int        @default(0)
+  vencimiento DateTime?
+  categoriaId Int
+  categoria   Categoria  @relation(fields: [categoriaId], references: [id])
+  movimientos MovimientoInventario[]
+  creadoEn    DateTime   @default(now())
+  actualizadoEn DateTime @updatedAt
+}
+
+model MovimientoInventario {
+  id          Int             @id @default(autoincrement())
+  productoId  Int
+  producto    Producto        @relation(fields: [productoId], references: [id])
+  tipo        TipoMovimiento
+  cantidad    Int
+  stockAntes  Int
+  stockDespues Int
+  motivo      String?
+  usuarioId   Int
+  usuario     Usuario         @relation(fields: [usuarioId], references: [id])
+  creadoEn    DateTime        @default(now())
 }

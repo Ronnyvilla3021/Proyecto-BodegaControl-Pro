@@ -8,7 +8,6 @@ export class PedidosService {
   constructor(private prisma: PrismaService) {}
 
   async crear(dto: CreatePedidoDto, usuarioId: number) {
-    // 1. Trae los productos involucrados para validar stock y calcular precios reales
     const productoIds = dto.items.map((i) => i.productoId);
     const productos = await this.prisma.producto.findMany({
       where: { id: { in: productoIds } },
@@ -18,7 +17,6 @@ export class PedidosService {
       throw new BadRequestException('Uno o más productos no existen');
     }
 
-    // 2. Valida stock disponible y calcula subtotales
     let total = 0;
     const detalles = dto.items.map((item) => {
       const producto = productos.find((p) => p.id === item.productoId)!;
@@ -41,7 +39,6 @@ export class PedidosService {
       };
     });
 
-    // 3. Crea el pedido con sus detalles en una sola operación
     return this.prisma.pedido.create({
       data: {
         clienteId: dto.clienteId,
@@ -49,8 +46,8 @@ export class PedidosService {
         total,
         detalles: { create: detalles },
       },
-      include: { 
-        detalles: { include: { producto: true } }, 
+      include: {
+        detalles: { include: { producto: true } },
         cliente: true,
         usuario: { select: { id: true, nombre: true, rol: true } }
       },
@@ -59,8 +56,8 @@ export class PedidosService {
 
   async listar() {
     return this.prisma.pedido.findMany({
-      include: { 
-        cliente: true, 
+      include: {
+        cliente: true,
         detalles: { include: { producto: true } },
         usuario: { select: { id: true, nombre: true, rol: true } }
       },
@@ -71,10 +68,11 @@ export class PedidosService {
   async buscarPorId(id: number) {
     const pedido = await this.prisma.pedido.findUnique({
       where: { id },
-      include: { 
-        cliente: true, 
-        detalles: { include: { producto: true } }, 
-        usuario: { select: { id: true, nombre: true, rol: true } }
+      include: {
+        cliente: true,
+        detalles: { include: { producto: true } },
+        usuario: { select: { id: true, nombre: true, rol: true } },
+        repartidor: { select: { id: true, nombre: true, rol: true } }
       },
     });
 
@@ -86,38 +84,39 @@ export class PedidosService {
   }
 
   async asignarRepartidor(id: number, repartidorId: number) {
-    const pedido = await this.buscarPorId(id);
+  const pedido = await this.buscarPorId(id);
 
-    if (pedido.estado === EstadoPedido.ENTREGADO) {
-      throw new BadRequestException('No se puede reasignar un pedido ya entregado');
-    }
-
-    const repartidor = await this.prisma.usuario.findUnique({ 
-      where: { id: repartidorId } 
-    });
-
-    if (!repartidor || repartidor.rol !== 'REPARTIDOR') {
-      throw new BadRequestException('El usuario indicado no es un repartidor válido');
-    }
-
-    // Actualizar el pedido
-    const pedidoActualizado = await this.prisma.pedido.update({
-      where: { id },
-      data: { repartidorId },
-    });
-
-    // Buscar el pedido con todos los includes
-    return this.buscarPorId(id);
+  if (pedido.estado === EstadoPedido.ENTREGADO) {
+    throw new BadRequestException('No se puede reasignar un pedido ya entregado');
   }
+
+  const repartidor = await this.prisma.usuario.findUnique({
+    where: { id: repartidorId }
+  });
+
+  if (!repartidor || repartidor.rol !== 'REPARTIDOR') {
+    throw new BadRequestException('El usuario indicado no es un repartidor válido');
+  }
+
+  // Actualizar el pedido usando un objeto con la propiedad
+  await this.prisma.pedido.update({
+    where: { id },
+    data: {
+      repartidorId: repartidorId
+    },
+  });
+
+  return this.buscarPorId(id);
+}
 
   async misPedidos(repartidorId: number) {
     return this.prisma.pedido.findMany({
-      where: { 
-        repartidorId, 
-        estado: EstadoPedido.EN_RUTA 
+      where: {
+        repartidorId,
+        estado: EstadoPedido.EN_RUTA
       },
-      include: { 
-        cliente: true, 
+      include: {
+        cliente: true,
         detalles: { include: { producto: true } },
         usuario: { select: { id: true, nombre: true, rol: true } }
       },
@@ -130,7 +129,6 @@ export class PedidosService {
 
     this.validarTransicion(pedido.estado, nuevoEstado);
 
-    // Cuando pasa a EMPACADO, descuenta stock real usando el Kardex
     if (nuevoEstado === EstadoPedido.EMPACADO) {
       const operaciones = pedido.detalles.map((detalle) =>
         this.prisma.movimientoInventario.create({
@@ -162,9 +160,8 @@ export class PedidosService {
       return this.buscarPorId(id);
     }
 
-    // Si no es EMPACADO, solo actualiza el estado
-    await this.prisma.pedido.update({ 
-      where: { id }, 
+    await this.prisma.pedido.update({
+      where: { id },
       data: { estado: nuevoEstado }
     });
 

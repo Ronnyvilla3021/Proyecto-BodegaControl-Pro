@@ -15,16 +15,16 @@ enum Rol {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  email     String   @unique
-  password  String
-  rol       Rol
-  activo    Boolean  @default(true)
-  creadoEn  DateTime @default(now())
-  movimientos       MovimientoInventario[]
-  pedidos           Pedido[]
-  pedidosAsignados  Pedido[] @relation("PedidosAsignados")
+  id               Int                    @id @default(autoincrement())
+  nombre           String
+  email            String                 @unique
+  password         String
+  rol              Rol
+  activo           Boolean                @default(true)
+  creadoEn         DateTime               @default(now())
+  movimientos      MovimientoInventario[]
+  pedidos          Pedido[]
+  pedidosAsignados Pedido[]               @relation("PedidosAsignados")
 }
 
 enum TipoMovimiento {
@@ -40,32 +40,32 @@ model Categoria {
 }
 
 model Producto {
-  id          Int        @id @default(autoincrement())
-  codigo      String     @unique
-  nombre      String
-  precio      Decimal    @db.Decimal(10, 2)
-  stock       Int        @default(0)
-  vencimiento DateTime?
-  categoriaId Int
-  categoria   Categoria  @relation(fields: [categoriaId], references: [id])
-  movimientos MovimientoInventario[]
-  creadoEn    DateTime   @default(now())
-  actualizadoEn DateTime @updatedAt
+  id             Int                    @id @default(autoincrement())
+  codigo         String                 @unique
+  nombre         String
+  precio         Decimal                @db.Decimal(10, 2)
+  stock          Int                    @default(0)
+  vencimiento    DateTime?
+  categoriaId    Int
+  categoria      Categoria              @relation(fields: [categoriaId], references: [id])
+  movimientos    MovimientoInventario[]
+  creadoEn       DateTime               @default(now())
+  actualizadoEn  DateTime               @updatedAt
   detallesPedido DetallePedido[]
 }
 
 model MovimientoInventario {
-  id          Int             @id @default(autoincrement())
-  productoId  Int
-  producto    Producto        @relation(fields: [productoId], references: [id])
-  tipo        TipoMovimiento
-  cantidad    Int
-  stockAntes  Int
+  id           Int            @id @default(autoincrement())
+  productoId   Int
+  producto     Producto       @relation(fields: [productoId], references: [id])
+  tipo         TipoMovimiento
+  cantidad     Int
+  stockAntes   Int
   stockDespues Int
-  motivo      String?
-  usuarioId   Int
-  usuario     Usuario         @relation(fields: [usuarioId], references: [id])
-  creadoEn    DateTime        @default(now())
+  motivo       String?
+  usuarioId    Int
+  usuario      Usuario        @relation(fields: [usuarioId], references: [id])
+  creadoEn     DateTime       @default(now())
 }
 
 enum EstadoPedido {
@@ -86,19 +86,19 @@ model Cliente {
 }
 
 model Pedido {
-  id            Int              @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   clienteId     Int
-  cliente       Cliente          @relation(fields: [clienteId], references: [id])
+  cliente       Cliente         @relation(fields: [clienteId], references: [id])
   usuarioId     Int
-  usuario       Usuario          @relation(fields: [usuarioId], references: [id])
+  usuario       Usuario         @relation(fields: [usuarioId], references: [id])
   repartidorId  Int?
-  repartidor    Usuario?         @relation("PedidosAsignados", fields: [repartidorId], references: [id])
-  estado        EstadoPedido     @default(PENDIENTE)
-  total         Decimal          @db.Decimal(10, 2)
+  repartidor    Usuario?        @relation("PedidosAsignados", fields: [repartidorId], references: [id])
+  estado        EstadoPedido    @default(PENDIENTE)
+  total         Decimal         @db.Decimal(10, 2)
   detalles      DetallePedido[]
   entrega       Entrega?
-  creadoEn      DateTime         @default(now())
-  actualizadoEn DateTime         @updatedAt
+  creadoEn      DateTime        @default(now())
+  actualizadoEn DateTime        @updatedAt
 }
 
 model DetallePedido {
@@ -113,11 +113,26 @@ model DetallePedido {
 }
 
 model Entrega {
-  id          Int      @id @default(autoincrement())
-  pedidoId    Int      @unique
-  pedido      Pedido   @relation(fields: [pedidoId], references: [id])
-  foto        String
-  firma       String
-  ubicacion   String
-  fecha       DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  pedidoId  Int      @unique
+  pedido    Pedido   @relation(fields: [pedidoId], references: [id])
+  foto      String
+  firma     String
+  ubicacion String
+  fecha     DateTime @default(now())
+}
+
+enum TipoNotificacion {
+  STOCK_BAJO
+  PRODUCTO_VENCIDO
+  RESUMEN_SEMANAL
+}
+
+model Notificacion {
+  id       Int              @id @default(autoincrement())
+  tipo     TipoNotificacion
+  titulo   String
+  mensaje  String
+  leida    Boolean          @default(false)
+  creadoEn DateTime         @default(now())
 }

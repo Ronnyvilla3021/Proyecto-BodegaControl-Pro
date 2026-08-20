@@ -8,10 +8,9 @@ export class EntregasService {
   constructor(private prisma: PrismaService) {}
 
   async confirmar(dto: CreateEntregaDto, repartidorId: number) {
-    // Buscar el pedido incluyendo el repartidorId
+    // Buscar el pedido con todos los campos necesarios
     const pedido = await this.prisma.pedido.findUnique({
       where: { id: dto.pedidoId },
-      include: { entrega: true }
     });
 
     if (!pedido) {
@@ -19,7 +18,8 @@ export class EntregasService {
     }
 
     // Verificar que el repartidor esté asignado al pedido
-    if (pedido.repartidorId !== repartidorId) {
+    // Usar type assertion para acceder a repartidorId
+    if ((pedido as any).repartidorId !== repartidorId) {
       throw new ForbiddenException('Este pedido no está asignado a ti');
     }
 
@@ -28,11 +28,15 @@ export class EntregasService {
     }
 
     // Verificar si ya tiene entrega
-    if (pedido.entrega) {
+    const entregaExistente = await this.prisma.entrega.findUnique({
+      where: { pedidoId: dto.pedidoId },
+    });
+
+    if (entregaExistente) {
       throw new BadRequestException('Este pedido ya tiene una entrega registrada');
     }
 
-    // Crear la entrega y actualizar el pedido
+    // Crear la entrega y actualizar el pedido en una transacción
     const [entrega] = await this.prisma.$transaction([
       this.prisma.entrega.create({
         data: {
@@ -51,13 +55,14 @@ export class EntregasService {
     // Retornar la entrega con el pedido relacionado
     return this.prisma.entrega.findUnique({
       where: { id: entrega.id },
-      include: { 
-        pedido: { 
-          include: { 
+      include: {
+        pedido: {
+          include: {
             cliente: true,
-            usuario: { select: { id: true, nombre: true, rol: true } }
-          } 
-        } 
+            usuario: { select: { id: true, nombre: true, rol: true } },
+            repartidor: { select: { id: true, nombre: true, rol: true } }
+          }
+        }
       },
     });
   }
@@ -65,14 +70,14 @@ export class EntregasService {
   async buscarPorPedido(pedidoId: number) {
     const entrega = await this.prisma.entrega.findUnique({
       where: { pedidoId },
-      include: { 
-        pedido: { 
-          include: { 
+      include: {
+        pedido: {
+          include: {
             cliente: true,
             usuario: { select: { id: true, nombre: true, rol: true } },
             repartidor: { select: { id: true, nombre: true, rol: true } }
-          } 
-        } 
+          }
+        }
       },
     });
 

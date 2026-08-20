@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Layout from './components/Layout';
 import { useAuthStore } from './store/authStore';
 
 const queryClient = new QueryClient();
@@ -17,14 +18,18 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+
           <Route
-            path="/dashboard"
             element={
               <RutaProtegida>
-                <Dashboard />
+                <Layout />
               </RutaProtegida>
             }
-          />
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Aquí vamos a ir agregando: /inventario, /pedidos, /clientes, etc. */}
+          </Route>
+
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

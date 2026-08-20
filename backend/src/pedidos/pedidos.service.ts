@@ -49,13 +49,21 @@ export class PedidosService {
         total,
         detalles: { create: detalles },
       },
-      include: { detalles: { include: { producto: true } }, cliente: true },
+      include: { 
+        detalles: { include: { producto: true } }, 
+        cliente: true,
+        usuario: { select: { id: true, nombre: true, rol: true } }
+      },
     });
   }
 
   async listar() {
     return this.prisma.pedido.findMany({
-      include: { cliente: true, detalles: { include: { producto: true } } },
+      include: { 
+        cliente: true, 
+        detalles: { include: { producto: true } },
+        usuario: { select: { id: true, nombre: true, rol: true } }
+      },
       orderBy: { creadoEn: 'desc' },
     });
   }
@@ -63,7 +71,11 @@ export class PedidosService {
   async buscarPorId(id: number) {
     const pedido = await this.prisma.pedido.findUnique({
       where: { id },
-      include: { cliente: true, detalles: { include: { producto: true } }, usuario: { select: { nombre: true } } },
+      include: { 
+        cliente: true, 
+        detalles: { include: { producto: true } }, 
+        usuario: { select: { id: true, nombre: true, rol: true } }
+      },
     });
 
     if (!pedido) {
@@ -74,32 +86,44 @@ export class PedidosService {
   }
 
   async asignarRepartidor(id: number, repartidorId: number) {
-  const pedido = await this.buscarPorId(id);
+    const pedido = await this.buscarPorId(id);
 
-  if (pedido.estado === EstadoPedido.ENTREGADO) {
-    throw new BadRequestException('No se puede reasignar un pedido ya entregado');
+    if (pedido.estado === EstadoPedido.ENTREGADO) {
+      throw new BadRequestException('No se puede reasignar un pedido ya entregado');
+    }
+
+    const repartidor = await this.prisma.usuario.findUnique({ 
+      where: { id: repartidorId } 
+    });
+
+    if (!repartidor || repartidor.rol !== 'REPARTIDOR') {
+      throw new BadRequestException('El usuario indicado no es un repartidor válido');
+    }
+
+    // Actualizar el pedido
+    const pedidoActualizado = await this.prisma.pedido.update({
+      where: { id },
+      data: { repartidorId },
+    });
+
+    // Buscar el pedido con todos los includes
+    return this.buscarPorId(id);
   }
 
-  const repartidor = await this.prisma.usuario.findUnique({ where: { id: repartidorId } });
-
-  if (!repartidor || repartidor.rol !== 'REPARTIDOR') {
-    throw new BadRequestException('El usuario indicado no es un repartidor válido');
+  async misPedidos(repartidorId: number) {
+    return this.prisma.pedido.findMany({
+      where: { 
+        repartidorId, 
+        estado: EstadoPedido.EN_RUTA 
+      },
+      include: { 
+        cliente: true, 
+        detalles: { include: { producto: true } },
+        usuario: { select: { id: true, nombre: true, rol: true } }
+      },
+      orderBy: { creadoEn: 'asc' },
+    });
   }
-
-  return this.prisma.pedido.update({
-    where: { id },
-    data: { repartidorId },
-    include: { cliente: true, repartidor: { select: { id: true, nombre: true } } },
-  });
-}
-
-async misPedidos(repartidorId: number) {
-  return this.prisma.pedido.findMany({
-    where: { repartidorId, estado: EstadoPedido.EN_RUTA },
-    include: { cliente: true, detalles: { include: { producto: true } } },
-    orderBy: { creadoEn: 'asc' },
-  });
-}
 
   async cambiarEstado(id: number, nuevoEstado: EstadoPedido, usuarioId: number) {
     const pedido = await this.buscarPorId(id);
@@ -138,7 +162,13 @@ async misPedidos(repartidorId: number) {
       return this.buscarPorId(id);
     }
 
-    return this.prisma.pedido.update({ where: { id }, data: { estado: nuevoEstado } });
+    // Si no es EMPACADO, solo actualiza el estado
+    await this.prisma.pedido.update({ 
+      where: { id }, 
+      data: { estado: nuevoEstado }
+    });
+
+    return this.buscarPorId(id);
   }
 
   private validarTransicion(actual: EstadoPedido, siguiente: EstadoPedido) {
@@ -149,7 +179,7 @@ async misPedidos(repartidorId: number) {
       ENTREGADO: [],
     };
 
-    if (!transicionesValidas[actual].includes(siguiente)) {
+    if (!transicionesValidas[actual]?.includes(siguiente)) {
       throw new BadRequestException(
         `No se puede cambiar de ${actual} a ${siguiente}. Transición no permitida.`,
       );

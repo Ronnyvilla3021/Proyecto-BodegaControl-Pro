@@ -73,6 +73,34 @@ export class PedidosService {
     return pedido;
   }
 
+  async asignarRepartidor(id: number, repartidorId: number) {
+  const pedido = await this.buscarPorId(id);
+
+  if (pedido.estado === EstadoPedido.ENTREGADO) {
+    throw new BadRequestException('No se puede reasignar un pedido ya entregado');
+  }
+
+  const repartidor = await this.prisma.usuario.findUnique({ where: { id: repartidorId } });
+
+  if (!repartidor || repartidor.rol !== 'REPARTIDOR') {
+    throw new BadRequestException('El usuario indicado no es un repartidor válido');
+  }
+
+  return this.prisma.pedido.update({
+    where: { id },
+    data: { repartidorId },
+    include: { cliente: true, repartidor: { select: { id: true, nombre: true } } },
+  });
+}
+
+async misPedidos(repartidorId: number) {
+  return this.prisma.pedido.findMany({
+    where: { repartidorId, estado: EstadoPedido.EN_RUTA },
+    include: { cliente: true, detalles: { include: { producto: true } } },
+    orderBy: { creadoEn: 'asc' },
+  });
+}
+
   async cambiarEstado(id: number, nuevoEstado: EstadoPedido, usuarioId: number) {
     const pedido = await this.buscarPorId(id);
 

@@ -22,8 +22,9 @@ model Usuario {
   rol       Rol
   activo    Boolean  @default(true)
   creadoEn  DateTime @default(now())
-  movimientos MovimientoInventario[]
-  pedidos     Pedido[]
+  movimientos       MovimientoInventario[]
+  pedidos           Pedido[]
+  pedidosAsignados  Pedido[] @relation("PedidosAsignados")
 }
 
 enum TipoMovimiento {
@@ -85,17 +86,19 @@ model Cliente {
 }
 
 model Pedido {
-  id          Int              @id @default(autoincrement())
-  clienteId   Int
-  cliente     Cliente          @relation(fields: [clienteId], references: [id])
-  usuarioId   Int
-  usuario     Usuario          @relation(fields: [usuarioId], references: [id])
-  estado      EstadoPedido     @default(PENDIENTE)
-  total       Decimal          @db.Decimal(10, 2)
-  detalles    DetallePedido[]
-  // entrega     Entrega?
-  creadoEn    DateTime         @default(now())
-  actualizadoEn DateTime       @updatedAt
+  id            Int              @id @default(autoincrement())
+  clienteId     Int
+  cliente       Cliente          @relation(fields: [clienteId], references: [id])
+  usuarioId     Int
+  usuario       Usuario          @relation(fields: [usuarioId], references: [id])
+  repartidorId  Int?
+  repartidor    Usuario?         @relation("PedidosAsignados", fields: [repartidorId], references: [id])
+  estado        EstadoPedido     @default(PENDIENTE)
+  total         Decimal          @db.Decimal(10, 2)
+  detalles      DetallePedido[]
+  entrega       Entrega?
+  creadoEn      DateTime         @default(now())
+  actualizadoEn DateTime         @updatedAt
 }
 
 model DetallePedido {
@@ -107,4 +110,14 @@ model DetallePedido {
   cantidad       Int
   precioUnitario Decimal  @db.Decimal(10, 2)
   subtotal       Decimal  @db.Decimal(10, 2)
+}
+
+model Entrega {
+  id          Int      @id @default(autoincrement())
+  pedidoId    Int      @unique
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id])
+  foto        String
+  firma       String
+  ubicacion   String
+  fecha       DateTime @default(now())
 }

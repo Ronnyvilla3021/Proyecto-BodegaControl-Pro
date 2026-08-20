@@ -23,6 +23,7 @@ model Usuario {
   activo    Boolean  @default(true)
   creadoEn  DateTime @default(now())
   movimientos MovimientoInventario[]
+  pedidos     Pedido[]
 }
 
 enum TipoMovimiento {
@@ -49,6 +50,7 @@ model Producto {
   movimientos MovimientoInventario[]
   creadoEn    DateTime   @default(now())
   actualizadoEn DateTime @updatedAt
+  detallesPedido DetallePedido[]
 }
 
 model MovimientoInventario {
@@ -63,4 +65,46 @@ model MovimientoInventario {
   usuarioId   Int
   usuario     Usuario         @relation(fields: [usuarioId], references: [id])
   creadoEn    DateTime        @default(now())
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  EMPACADO
+  EN_RUTA
+  ENTREGADO
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  telefono  String?
+  direccion String?
+  email     String?  @unique
+  pedidos   Pedido[]
+  creadoEn  DateTime @default(now())
+}
+
+model Pedido {
+  id          Int              @id @default(autoincrement())
+  clienteId   Int
+  cliente     Cliente          @relation(fields: [clienteId], references: [id])
+  usuarioId   Int
+  usuario     Usuario          @relation(fields: [usuarioId], references: [id])
+  estado      EstadoPedido     @default(PENDIENTE)
+  total       Decimal          @db.Decimal(10, 2)
+  detalles    DetallePedido[]
+  // entrega     Entrega?
+  creadoEn    DateTime         @default(now())
+  actualizadoEn DateTime       @updatedAt
+}
+
+model DetallePedido {
+  id             Int      @id @default(autoincrement())
+  pedidoId       Int
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id])
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(10, 2)
+  subtotal       Decimal  @db.Decimal(10, 2)
 }

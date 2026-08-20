@@ -13,6 +13,7 @@ import { PedidosModule } from './pedidos/pedidos.module';
 import { EntregasModule } from './entregas/entregas.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AutomatizacionModule } from './automatizacion/automatizacion.module';
+import { ReportesModule } from './reportes/reportes.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { AutomatizacionModule } from './automatizacion/automatizacion.module';
     EntregasModule,
     DashboardModule,
     AutomatizacionModule,
+    ReportesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

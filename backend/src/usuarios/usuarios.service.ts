@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -41,4 +41,24 @@ export class UsuariosService {
       select: { id: true, nombre: true, email: true, rol: true, activo: true, creadoEn: true },
     });
   }
+
+  async cambiarEstado(id: number, activo: boolean, solicitanteId: number) {
+  if (id === solicitanteId && !activo) {
+    throw new BadRequestException('No puedes desactivar tu propia cuenta');
+  }
+
+  const usuario = await this.prisma.usuario.findUnique({ where: { id } });
+
+  if (!usuario) {
+    throw new NotFoundException('Usuario no encontrado');
+  }
+
+  const actualizado = await this.prisma.usuario.update({
+    where: { id },
+    data: { activo },
+  });
+
+  const { password, ...resultado } = actualizado;
+  return resultado;
+}
 }

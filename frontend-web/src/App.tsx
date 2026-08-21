@@ -7,6 +7,8 @@ import { useAuthStore } from './store/authStore';
 import Inventario from './pages/Inventario';
 import Pedidos from './pages/Pedidos';
 import Clientes from './pages/Clientes';
+import Usuarios from './pages/Usuarios';
+import Reportes from './pages/Reportes';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,10 @@ function App() {
 
           <Route path="/pedidos" element={<Pedidos />} />
           
+          <Route path="/usuarios" element={<Usuarios />} />
+
+          <Route path="/reportes" element={<Reportes />} />
+
           <Route
             element={
               <RutaProtegida>

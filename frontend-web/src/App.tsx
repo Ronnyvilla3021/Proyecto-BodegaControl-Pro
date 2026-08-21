@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import { useAuthStore } from './store/authStore';
+import Inventario from './pages/Inventario';
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+
+          <Route path="/inventario" element={<Inventario />} />
 
           <Route
             element={

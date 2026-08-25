@@ -6,72 +6,132 @@ export default function Dashboard() {
   const { datos, conectado } = useDashboardStream();
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-1">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span
-            className={`w-2 h-2 rounded-full ${conectado ? 'bg-green-500 animate-pulse' : 'bg-red-400'}`}
-          />
-          {conectado ? 'En vivo' : 'Conectando...'}
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div>
+          <h1>Dashboard</h1>
+          <p>Bienvenido de nuevo, {usuario?.nombre}. Aquí tienes el resumen de hoy.</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', padding: '8px 16px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: conectado ? '#10b981' : '#ef4444' }} />
+          <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
+            {conectado ? 'En vivo' : 'Conectando...'}
+          </span>
         </div>
       </div>
-      <p className="text-slate-500 mb-6">Bienvenido de nuevo, {usuario?.nombre}.</p>
 
       {!datos ? (
-        <p className="text-slate-400">Cargando datos en tiempo real...</p>
+        <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+          <p style={{ fontSize: '16px' }}>Cargando datos en tiempo real...</p>
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Pedidos hoy</p>
-              <p className="text-3xl font-bold text-slate-800 mt-1">{datos.pedidosHoy}</p>
+          {/* Stats Cards - Grid de 3 columnas que ocupa todo el ancho */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '20px', 
+            marginBottom: '32px',
+            width: '100%'
+          }}>
+            <div className="stat-card">
+              <div className="stat-icon" style={{ background: '#dbeafe' }}>📦</div>
+              <div className="stat-label">Pedidos hoy</div>
+              <div className="stat-value" style={{ color: '#1e40af' }}>{datos.pedidosHoy}</div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Entregas hoy</p>
-              <p className="text-3xl font-bold text-slate-800 mt-1">{datos.entregasHoy}</p>
+            <div className="stat-card">
+              <div className="stat-icon" style={{ background: '#d1fae5' }}>🚚</div>
+              <div className="stat-label">Entregas hoy</div>
+              <div className="stat-value" style={{ color: '#065f46' }}>{datos.entregasHoy}</div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Productos con stock bajo</p>
-              <p className="text-3xl font-bold text-red-600 mt-1">{datos.stockBajo.length}</p>
+            <div className="stat-card">
+              <div className="stat-icon" style={{ background: '#fee2e2' }}>⚠️</div>
+              <div className="stat-label">Stock bajo</div>
+              <div className="stat-value" style={{ color: '#991b1b' }}>{datos.stockBajo.length}</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl shadow-sm p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">⚠️ Stock bajo</h2>
+          {/* Grid de contenido - 2 columnas que ocupa todo el ancho */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '24px',
+            width: '100%'
+          }}>
+            {/* Stock bajo */}
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                  ⚠️
+                </div>
+                <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', margin: 0 }}>Stock bajo</h2>
+              </div>
+              
               {datos.stockBajo.length === 0 ? (
-                <p className="text-sm text-slate-400">Todo el inventario está en buen nivel.</p>
+                <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>✅</div>
+                  <p style={{ fontSize: '14px' }}>Todo el inventario está en buen nivel.</p>
+                </div>
               ) : (
-                <ul className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {datos.stockBajo.map((p) => (
-                    <li key={p.id} className="flex justify-between text-sm">
-                      <span className="text-slate-700">{p.nombre}</span>
-                      <span className="font-medium text-red-600">{p.stock} u.</span>
-                    </li>
+                    <div key={p.id} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      padding: '12px 16px', 
+                      background: '#fef2f2', 
+                      borderRadius: '12px',
+                      border: '1px solid #fecaca'
+                    }}>
+                      <span style={{ fontSize: '14px', color: '#0f172a', fontWeight: '500' }}>{p.nombre}</span>
+                      <span style={{ fontSize: '14px', color: '#ef4444', fontWeight: '700' }}>{p.stock} u.</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-5">
-              <h2 className="font-semibold text-slate-700 mb-3">🔥 Más vendidos</h2>
+            {/* Más vendidos */}
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
+                  🔥
+                </div>
+                <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', margin: 0 }}>Más vendidos</h2>
+              </div>
+              
               {datos.productosVendidos.length === 0 ? (
-                <p className="text-sm text-slate-400">Aún no hay ventas registradas.</p>
+                <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📭</div>
+                  <p style={{ fontSize: '14px' }}>Aún no hay ventas registradas.</p>
+                </div>
               ) : (
-                <ul className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {datos.productosVendidos.map((v, i) => (
-                    <li key={i} className="flex justify-between text-sm">
-                      <span className="text-slate-700">{v.producto?.nombre ?? 'Producto eliminado'}</span>
-                      <span className="font-medium text-slate-800">{v.cantidadVendida} u.</span>
-                    </li>
+                    <div key={i} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      padding: '12px 16px', 
+                      background: '#eff6ff', 
+                      borderRadius: '12px',
+                      border: '1px solid #bfdbfe'
+                    }}>
+                      <span style={{ fontSize: '14px', color: '#0f172a', fontWeight: '500' }}>
+                        {v.producto?.nombre ?? 'Producto eliminado'}
+                      </span>
+                      <span style={{ fontSize: '14px', color: '#2563eb', fontWeight: '700' }}>{v.cantidadVendida} u.</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
 
-          <p className="text-xs text-slate-400 mt-4">
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '24px', textAlign: 'right' }}>
             Última actualización: {new Date(datos.timestamp).toLocaleTimeString()}
           </p>
         </>

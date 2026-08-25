@@ -29,42 +29,123 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      background: 'linear-gradient(135deg, #0a1628 0%, #1e3a5f 100%)'
+    }}>
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm"
+        style={{
+          background: 'white',
+          padding: '48px',
+          borderRadius: '24px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          width: '100%',
+          maxWidth: '420px'
+        }}
       >
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">Bodega Control Pro</h1>
-        <p className="text-slate-500 mb-6">Inicia sesión para continuar</p>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ 
+            width: '72px', 
+            height: '72px', 
+            borderRadius: '20px', 
+            background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '36px',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px rgba(37,99,235,0.3)'
+          }}>
+            🏭
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px' }}>
+            BodegaPro
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '14px', margin: '0' }}>
+            Inicia sesión para continuar
+          </p>
+        </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm rounded-lg px-3 py-2 mb-4">
+          <div style={{ 
+            background: '#fee2e2', 
+            color: '#991b1b', 
+            borderRadius: '12px', 
+            padding: '12px 16px', 
+            marginBottom: '20px', 
+            fontSize: '14px',
+            border: '1px solid #fecaca'
+          }}>
             {error}
           </div>
         )}
 
-        <label className="block text-sm font-medium text-slate-700 mb-1">Correo</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>
+            Correo electrónico
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="tu@correo.com"
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              border: '2px solid #e2e8f0',
+              borderRadius: '12px',
+              fontSize: '14px',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'all 0.2s'
+            }}
+          />
+        </div>
 
-        <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div style={{ marginBottom: '32px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>
+            Contraseña
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="••••••••"
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              border: '2px solid #e2e8f0',
+              borderRadius: '12px',
+              fontSize: '14px',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'all 0.2s'
+            }}
+          />
+        </div>
 
         <button
           type="submit"
           disabled={cargando}
-          className="w-full bg-blue-600 text-white font-medium rounded-lg py-2 hover:bg-blue-700 transition disabled:opacity-50"
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: '15px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 12px rgba(37,99,235,0.3)'
+          }}
         >
           {cargando ? 'Ingresando...' : 'Ingresar'}
         </button>

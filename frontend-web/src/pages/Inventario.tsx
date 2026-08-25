@@ -43,102 +43,100 @@ export default function Inventario() {
     mutacionCrear.mutate(dto);
   };
 
-  if (isLoading) return <div className="p-8">Cargando inventario...</div>;
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+        <p>Cargando inventario...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Inventario</h1>
-        <button
-          onClick={() => setMostrarForm(!mostrarForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-        >
-          {mostrarForm ? 'Cancelar' : '+ Nuevo Producto'}
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%' }}>
+        <div>
+          <h1>Inventario</h1>
+          <p>Gestiona tus productos y stock</p>
+        </div>
+        <button onClick={() => setMostrarForm(!mostrarForm)} className="btn btn-primary">
+          <span style={{ fontSize: '18px', lineHeight: '1' }}>+</span>
+          <span>{mostrarForm ? 'Cancelar' : 'Nuevo Producto'}</span>
         </button>
       </div>
 
+      {/* Formulario */}
       {mostrarForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-xl shadow-sm p-6 mb-6 grid grid-cols-2 gap-4"
-        >
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Código</label>
-            <input name="codigo" required className="w-full border rounded-lg px-3 py-2" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-            <input name="nombre" required className="w-full border rounded-lg px-3 py-2" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Precio</label>
-            <input
-              name="precio"
-              type="number"
-              step="0.01"
-              required
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Stock inicial</label>
-            <input name="stock" type="number" className="w-full border rounded-lg px-3 py-2" />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Categoría</label>
-            <select name="categoriaId" required className="w-full border rounded-lg px-3 py-2">
-              <option value="">Selecciona una categoría</option>
-              {categorias?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            disabled={mutacionCrear.isPending}
-            className="col-span-2 bg-blue-600 text-white rounded-lg py-2 font-medium hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {mutacionCrear.isPending ? 'Guardando...' : 'Guardar producto'}
-          </button>
-        </form>
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', marginBottom: '24px' }}>
+            Nuevo Producto
+          </h2>
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+            <div>
+              <label className="form-label">Código</label>
+              <input name="codigo" required className="form-input" placeholder="PROD-001" />
+            </div>
+            <div>
+              <label className="form-label">Nombre</label>
+              <input name="nombre" required className="form-input" placeholder="Nombre del producto" />
+            </div>
+            <div>
+              <label className="form-label">Precio</label>
+              <input name="precio" type="number" step="0.01" required className="form-input" placeholder="0.00" />
+            </div>
+            <div>
+              <label className="form-label">Stock inicial</label>
+              <input name="stock" type="number" className="form-input" placeholder="0" />
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label className="form-label">Categoría</label>
+              <select name="categoriaId" required className="form-input">
+                <option value="">Selecciona una categoría</option>
+                {categorias?.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" disabled={mutacionCrear.isPending} className="btn btn-primary" style={{ gridColumn: 'span 2', justifyContent: 'center' }}>
+              {mutacionCrear.isPending ? 'Guardando...' : 'Guardar producto'}
+            </button>
+          </form>
+        </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600 text-left">
+      {/* Tabla de productos */}
+      <div className="table-container">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="px-4 py-3">Código</th>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Categoría</th>
-              <th className="px-4 py-3">Precio</th>
-              <th className="px-4 py-3">Stock</th>
-              <th className="px-4 py-3"></th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th style={{ textAlign: 'right' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos?.map((p) => (
-              <tr key={p.id} className="border-t border-slate-100">
-                <td className="px-4 py-3 font-mono text-xs">{p.codigo}</td>
-                <td className="px-4 py-3">{p.nombre}</td>
-                <td className="px-4 py-3">{p.categoria.nombre}</td>
-                <td className="px-4 py-3">${Number(p.precio).toFixed(2)}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      p.stock <= 10
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-green-100 text-green-700'
-                    }`}
-                  >
+              <tr key={p.id}>
+                <td style={{ fontFamily: 'monospace', fontSize: '13px', color: '#64748b' }}>{p.codigo}</td>
+                <td style={{ fontWeight: '500' }}>{p.nombre}</td>
+                <td>{p.categoria.nombre}</td>
+                <td style={{ fontWeight: '600' }}>${Number(p.precio).toFixed(2)}</td>
+                <td>
+                  <span className={`badge badge-${p.stock <= 10 ? 'red' : 'green'}`}>
                     {p.stock}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td style={{ textAlign: 'right' }}>
                   <button
                     onClick={() => setProductoSeleccionado(p.id)}
-                    className="text-blue-600 text-xs font-medium hover:underline"
+                    className="btn btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: '12px' }}
                   >
                     Registrar movimiento
                   </button>

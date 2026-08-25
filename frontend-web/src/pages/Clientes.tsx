@@ -57,99 +57,120 @@ export default function Clientes() {
     setClienteEditando(null);
   };
 
-  if (isLoading) return <div className="p-8">Cargando clientes...</div>;
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+        <p>Cargando clientes...</p>
+      </div>
+    );
+  }
 
   const guardando = mutacionCrear.isPending || mutacionActualizar.isPending;
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Clientes</h1>
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%' }}>
+        <div>
+          <h1>Clientes</h1>
+          <p>Gestiona tu cartera de clientes</p>
+        </div>
         <button
           onClick={() => (mostrarForm ? cerrarFormulario() : abrirFormulario())}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+          className="btn btn-primary"
         >
-          {mostrarForm ? 'Cancelar' : '+ Nuevo Cliente'}
+          <span style={{ fontSize: '18px', lineHeight: '1' }}>+</span>
+          <span>{mostrarForm ? 'Cancelar' : 'Nuevo Cliente'}</span>
         </button>
       </div>
 
+      {/* Formulario */}
       {mostrarForm && (
-        <form
-          key={clienteEditando?.id ?? 'nuevo'}
-          onSubmit={handleSubmit}
-          className="bg-white rounded-xl shadow-sm p-6 mb-6 grid grid-cols-2 gap-4"
-        >
-          <h2 className="col-span-2 font-semibold text-slate-700">
-            {clienteEditando ? `Editando: ${clienteEditando.nombre}` : 'Nuevo cliente'}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', marginBottom: '24px' }}>
+            {clienteEditando ? `Editando: ${clienteEditando.nombre}` : 'Nuevo Cliente'}
           </h2>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-            <input
-              name="nombre"
-              defaultValue={clienteEditando?.nombre}
-              required
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
-            <input
-              name="telefono"
-              defaultValue={clienteEditando?.telefono ?? ''}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Correo</label>
-            <input
-              name="email"
-              type="email"
-              defaultValue={clienteEditando?.email ?? ''}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Dirección</label>
-            <input
-              name="direccion"
-              defaultValue={clienteEditando?.direccion ?? ''}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={guardando}
-            className="col-span-2 bg-blue-600 text-white rounded-lg py-2 font-medium hover:bg-blue-700 transition disabled:opacity-50"
+          <form
+            key={clienteEditando?.id ?? 'nuevo'}
+            onSubmit={handleSubmit}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}
           >
-            {guardando ? 'Guardando...' : clienteEditando ? 'Guardar cambios' : 'Crear cliente'}
-          </button>
-        </form>
+            <div>
+              <label className="form-label">Nombre</label>
+              <input
+                name="nombre"
+                defaultValue={clienteEditando?.nombre}
+                required
+                className="form-input"
+                placeholder="Nombre completo"
+              />
+            </div>
+            <div>
+              <label className="form-label">Teléfono</label>
+              <input
+                name="telefono"
+                defaultValue={clienteEditando?.telefono ?? ''}
+                className="form-input"
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+            <div>
+              <label className="form-label">Correo</label>
+              <input
+                name="email"
+                type="email"
+                defaultValue={clienteEditando?.email ?? ''}
+                className="form-input"
+                placeholder="cliente@ejemplo.com"
+              />
+            </div>
+            <div>
+              <label className="form-label">Dirección</label>
+              <input
+                name="direccion"
+                defaultValue={clienteEditando?.direccion ?? ''}
+                className="form-input"
+                placeholder="Calle, número, comuna"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={guardando}
+              className="btn btn-primary"
+              style={{ gridColumn: 'span 2', justifyContent: 'center' }}
+            >
+              {guardando ? 'Guardando...' : clienteEditando ? 'Guardar cambios' : 'Crear cliente'}
+            </button>
+          </form>
+        </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600 text-left">
+      {/* Tabla de clientes */}
+      <div className="table-container">
+        <table className="table">
+          <thead>
             <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Teléfono</th>
-              <th className="px-4 py-3">Correo</th>
-              <th className="px-4 py-3">Dirección</th>
-              <th className="px-4 py-3"></th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Correo</th>
+              <th>Dirección</th>
+              <th style={{ textAlign: 'right' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {clientes?.map((c) => (
-              <tr key={c.id} className="border-t border-slate-100">
-                <td className="px-4 py-3 font-medium text-slate-800">{c.nombre}</td>
-                <td className="px-4 py-3 text-slate-600">{c.telefono || '—'}</td>
-                <td className="px-4 py-3 text-slate-600">{c.email || '—'}</td>
-                <td className="px-4 py-3 text-slate-600">{c.direccion || '—'}</td>
-                <td className="px-4 py-3 text-right">
+              <tr key={c.id}>
+                <td style={{ fontWeight: '500' }}>{c.nombre}</td>
+                <td>{c.telefono || '—'}</td>
+                <td>{c.email || '—'}</td>
+                <td>{c.direccion || '—'}</td>
+                <td style={{ textAlign: 'right' }}>
                   <button
                     onClick={() => abrirFormulario(c)}
-                    className="text-blue-600 text-xs font-medium hover:underline"
+                    className="btn btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: '12px' }}
                   >
                     Editar
                   </button>

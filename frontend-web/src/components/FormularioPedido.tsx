@@ -22,7 +22,7 @@ export default function FormularioPedido({ onCerrar }: Props) {
     mutationFn: crearPedido,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      queryClient.invalidateQueries({ queryKey: ['productos'] }); // el stock también cambia
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
       onCerrar();
     },
     onError: (err: any) => {
@@ -39,11 +39,10 @@ export default function FormularioPedido({ onCerrar }: Props) {
   const agregarItem = () => setItems([...items, { productoId: 0, cantidad: 1 }]);
 
   const quitarItem = (index: number) => {
-    if (items.length === 1) return; // siempre debe quedar al menos 1
+    if (items.length === 1) return;
     setItems(items.filter((_, i) => i !== index));
   };
 
-  // Calcula el total en vivo, según los precios reales de los productos cargados
   const totalEstimado = items.reduce((acc, item) => {
     const producto = productos?.find((p) => p.id === item.productoId);
     if (!producto) return acc;
@@ -69,88 +68,150 @@ export default function FormularioPedido({ onCerrar }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Nuevo pedido</h2>
+    <div className="modal-overlay" onClick={onCerrar}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>Nuevo Pedido</h2>
+          <button
+            onClick={onCerrar}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: '#f1f5f9',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>
+          <div style={{ 
+            background: '#fee2e2', 
+            color: '#991b1b', 
+            borderRadius: '12px', 
+            padding: '12px 16px', 
+            fontSize: '14px',
+            marginBottom: '20px',
+            border: '1px solid #fecaca'
+          }}>
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Cliente</label>
-          <select
-            value={clienteId}
-            onChange={(e) => setClienteId(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 mb-4"
-          >
-            <option value="">Selecciona un cliente</option>
-            {clientes?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-
-          <label className="block text-sm font-medium text-slate-700 mb-2">Productos</label>
-          <div className="space-y-2 mb-2">
-            {items.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <select
-                  value={item.productoId}
-                  onChange={(e) => actualizarItem(index, 'productoId', Number(e.target.value))}
-                  className="flex-1 border rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value={0}>Selecciona un producto</option>
-                  {productos?.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} (stock: {p.stock})
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  min="1"
-                  value={item.cantidad}
-                  onChange={(e) => actualizarItem(index, 'cantidad', Number(e.target.value))}
-                  className="w-20 border rounded-lg px-3 py-2 text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => quitarItem(index)}
-                  className="text-red-500 px-2 hover:bg-red-50 rounded-lg"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+          <div style={{ marginBottom: '20px' }}>
+            <label className="form-label">Cliente</label>
+            <select
+              value={clienteId}
+              onChange={(e) => setClienteId(e.target.value)}
+              className="form-input"
+            >
+              <option value="">Selecciona un cliente</option>
+              {clientes?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <button
-            type="button"
-            onClick={agregarItem}
-            className="text-blue-600 text-sm font-medium hover:underline mb-4"
-          >
-            + Agregar producto
-          </button>
-
-          <div className="bg-slate-50 rounded-lg px-4 py-3 mb-4 flex justify-between items-center">
-            <span className="text-sm text-slate-600">Total estimado</span>
-            <span className="text-lg font-bold text-slate-800">${totalEstimado.toFixed(2)}</span>
+          <div style={{ marginBottom: '16px' }}>
+            <label className="form-label">Productos</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {items.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <select
+                    value={item.productoId}
+                    onChange={(e) => actualizarItem(index, 'productoId', Number(e.target.value))}
+                    className="form-input"
+                    style={{ flex: 1 }}
+                  >
+                    <option value={0}>Selecciona un producto</option>
+                    {productos?.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre} (stock: {p.stock})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.cantidad}
+                    onChange={(e) => actualizarItem(index, 'cantidad', Number(e.target.value))}
+                    className="form-input"
+                    style={{ width: '80px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => quitarItem(index)}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: '#fee2e2',
+                      color: '#ef4444',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '16px'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <button
+              type="button"
+              onClick={agregarItem}
+              style={{
+                marginTop: '12px',
+                color: '#2563eb',
+                fontSize: '14px',
+                fontWeight: '600',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              + Agregar producto
+            </button>
           </div>
 
-          <div className="flex gap-2">
+          <div style={{
+            background: '#f8fafc',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '24px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Total estimado</span>
+            <span style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>${totalEstimado.toFixed(2)}</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
             <button
               type="button"
               onClick={onCerrar}
-              className="flex-1 bg-slate-100 text-slate-700 rounded-lg py-2 font-medium hover:bg-slate-200 transition"
+              className="btn btn-secondary"
+              style={{ flex: 1, justifyContent: 'center' }}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={mutacion.isPending}
-              className="flex-1 bg-blue-600 text-white rounded-lg py-2 font-medium hover:bg-blue-700 transition disabled:opacity-50"
+              className="btn btn-primary"
+              style={{ flex: 1, justifyContent: 'center' }}
             >
               {mutacion.isPending ? 'Creando...' : 'Crear pedido'}
             </button>

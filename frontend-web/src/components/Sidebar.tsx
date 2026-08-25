@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import ThemeToggle from './ThemeToggle';
 
 const enlaces = [
   { to: '/dashboard', label: 'Dashboard', roles: ['ADMINISTRADOR', 'BODEGUERO', 'REPARTIDOR', 'SUPERVISOR'] },
@@ -13,31 +14,31 @@ const enlaces = [
 
 export default function Sidebar() {
   const { usuario, logout } = useAuthStore();
-
-  const enlacesVisibles = enlaces.filter((enlace) =>
-    usuario ? enlace.roles.includes(usuario.rol) : false,
-  );
+  const enlacesVisibles = enlaces.filter((e) => usuario && e.roles.includes(usuario.rol));
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-100 min-h-screen flex flex-col">
-      <div className="p-5 border-b border-slate-700">
-        <h1 className="text-lg font-bold">Bodega Control Pro</h1>
-        <p className="text-xs text-slate-400 mt-1">{usuario?.nombre}</p>
-        <span className="inline-block mt-1 text-[10px] uppercase tracking-wide bg-blue-600 px-2 py-0.5 rounded">
-          {usuario?.rol}
-        </span>
+    <aside className="w-64 min-h-screen flex flex-col bg-linear-to-b from-[#1e3a5f] to-[#15243c] dark:from-[#0b0e17] dark:to-[#0b0e17] text-white">
+      <div className="p-5 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold tracking-tight">Bodega Control Pro</h1>
+          <p className="text-xs text-white/50 mt-1">{usuario?.nombre}</p>
+          <span className="inline-block mt-2 text-[10px] uppercase tracking-wider bg-white/10 px-2.5 py-1 rounded-full">
+            {usuario?.rol}
+          </span>
+        </div>
+        <ThemeToggle />
       </div>
 
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 px-3 space-y-1 mt-4">
         {enlacesVisibles.map((enlace) => (
           <NavLink
             key={enlace.to}
             to={enlace.to}
             className={({ isActive }) =>
-              `block px-3 py-2 rounded-lg text-sm font-medium transition ${
+              `block px-4 py-2.5 rounded-2xl text-sm font-medium transition ${
                 isActive
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-white/15 text-white shadow-inner'
+                  : 'text-white/60 hover:bg-white/10 hover:text-white'
               }`
             }
           >
@@ -46,10 +47,10 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-slate-700">
+      <div className="p-3">
         <button
           onClick={logout}
-          className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-slate-800 transition"
+          className="w-full text-left px-4 py-2.5 rounded-2xl text-sm text-red-300 hover:bg-white/10 transition"
         >
           Cerrar sesión
         </button>

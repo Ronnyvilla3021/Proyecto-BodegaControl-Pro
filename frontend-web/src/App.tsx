@@ -24,16 +24,6 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
 
-          <Route path="/inventario" element={<Inventario />} />
-
-          <Route path="/clientes" element={<Clientes />} />
-
-          <Route path="/pedidos" element={<Pedidos />} />
-          
-          <Route path="/usuarios" element={<Usuarios />} />
-
-          <Route path="/reportes" element={<Reportes />} />
-
           <Route
             element={
               <RutaProtegida>
@@ -42,7 +32,11 @@ function App() {
             }
           >
             <Route path="/dashboard" element={<Dashboard />} />
-            {/* Aquí vamos a ir agregando: /inventario, /pedidos, /clientes, etc. */}
+            <Route path="/inventario" element={<Inventario />} />
+            <Route path="/pedidos" element={<Pedidos />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/reportes" element={<Reportes />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />

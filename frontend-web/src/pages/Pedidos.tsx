@@ -17,63 +17,87 @@ export default function Pedidos() {
     mutationFn: ({ id, estado }: { id: number; estado: any }) => cambiarEstado(id, estado),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
-      queryClient.invalidateQueries({ queryKey: ['productos'] }); // por si descontó stock
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
     },
   });
 
-  if (isLoading) return <div className="p-8">Cargando pedidos...</div>;
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+        <p>Cargando pedidos...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Pedidos</h1>
-        <button
-          onClick={() => setMostrarForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-        >
-          + Nuevo Pedido
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%' }}>
+        <div>
+          <h1>Pedidos</h1>
+          <p>Gestiona y da seguimiento a los pedidos</p>
+        </div>
+        <button onClick={() => setMostrarForm(true)} className="btn btn-primary">
+          <span style={{ fontSize: '18px', lineHeight: '1' }}>+</span>
+          <span>Nuevo Pedido</span>
         </button>
       </div>
 
-      <div className="space-y-3">
+      {/* Lista de pedidos */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
         {pedidos?.map((pedido) => {
           const siguiente = siguienteEstado[pedido.estado];
 
           return (
-            <div key={pedido.id} className="bg-white rounded-xl shadow-sm p-5">
-              <div className="flex justify-between items-start mb-3">
+            <div key={pedido.id} className="card">
+              {/* Encabezado del pedido */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                 <div>
-                  <p className="font-semibold text-slate-800">
+                  <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '16px' }}>
                     Pedido #{pedido.id} — {pedido.cliente.nombre}
-                  </p>
-                  <p className="text-xs text-slate-400">
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
                     {new Date(pedido.creadoEn).toLocaleString()}
-                  </p>
+                  </div>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${colorEstado[pedido.estado]}`}
-                >
+                <span className={`badge badge-${colorEstado[pedido.estado]}`}>
                   {etiquetaEstado[pedido.estado]}
                 </span>
               </div>
 
-              <ul className="text-sm text-slate-600 space-y-1 mb-3">
+              {/* Detalles del pedido */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
                 {pedido.detalles.map((d) => (
-                  <li key={d.id}>
-                    {d.cantidad}x {d.producto.nombre} — ${Number(d.subtotal).toFixed(2)}
-                  </li>
+                  <div key={d.id} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '8px 12px',
+                    background: '#f8fafc',
+                    borderRadius: '10px',
+                    fontSize: '14px'
+                  }}>
+                    <span style={{ color: '#64748b' }}>{d.cantidad}x {d.producto.nombre}</span>
+                    <span style={{ fontWeight: '600', color: '#0f172a' }}>${Number(d.subtotal).toFixed(2)}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
 
-              <div className="flex justify-between items-center pt-3 border-t border-slate-100">
-                <span className="font-bold text-slate-800">
-                  Total: ${Number(pedido.total).toFixed(2)}
-                </span>
+              {/* Pie del pedido */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                <div>
+                  <span style={{ fontSize: '13px', color: '#64748b' }}>Total: </span>
+                  <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '18px' }}>
+                    ${Number(pedido.total).toFixed(2)}
+                  </span>
+                </div>
                 {siguiente && (
                   <button
                     onClick={() => mutacionEstado.mutate({ id: pedido.id, estado: siguiente })}
                     disabled={mutacionEstado.isPending}
-                    className="text-sm bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-700 transition disabled:opacity-50"
+                    className="btn btn-primary"
+                    style={{ padding: '8px 16px', fontSize: '13px' }}
                   >
                     Avanzar a {etiquetaEstado[siguiente]}
                   </button>

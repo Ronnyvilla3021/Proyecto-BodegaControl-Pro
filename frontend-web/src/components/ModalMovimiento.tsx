@@ -37,60 +37,117 @@ export default function ModalMovimiento({ productoId, onCerrar }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Registrar movimiento</h2>
+    <div className="modal-overlay" onClick={onCerrar}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: 0 }}>Registrar movimiento</h2>
+          <button
+            onClick={onCerrar}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: '#f1f5f9',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm rounded-lg px-3 py-2 mb-4">{error}</div>
+          <div style={{ 
+            background: '#fee2e2', 
+            color: '#991b1b', 
+            borderRadius: '12px', 
+            padding: '12px 16px', 
+            fontSize: '14px',
+            marginBottom: '20px',
+            border: '1px solid #fecaca'
+          }}>
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="flex gap-2 mb-4">
-            <button
-              type="button"
-              onClick={() => setTipo('ENTRADA')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-                tipo === 'ENTRADA' ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              Entrada
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipo('SALIDA')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-                tipo === 'SALIDA' ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              Salida
-            </button>
+          <div style={{ marginBottom: '20px' }}>
+            <label className="form-label">Tipo de movimiento</label>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setTipo('ENTRADA')}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  border: tipo === 'ENTRADA' ? '2px solid #10b981' : '2px solid #e2e8f0',
+                  background: tipo === 'ENTRADA' ? '#d1fae5' : 'white',
+                  color: tipo === 'ENTRADA' ? '#065f46' : '#64748b',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ↑ Entrada
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipo('SALIDA')}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  border: tipo === 'SALIDA' ? '2px solid #ef4444' : '2px solid #e2e8f0',
+                  background: tipo === 'SALIDA' ? '#fee2e2' : 'white',
+                  color: tipo === 'SALIDA' ? '#991b1b' : '#64748b',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ↓ Salida
+              </button>
+            </div>
           </div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-1">Cantidad</label>
-          <input
-            name="cantidad"
-            type="number"
-            min="1"
-            required
-            className="w-full border rounded-lg px-3 py-2 mb-4"
-          />
+          <div style={{ marginBottom: '20px' }}>
+            <label className="form-label">Cantidad</label>
+            <input
+              name="cantidad"
+              type="number"
+              min="1"
+              required
+              className="form-input"
+              placeholder="0"
+            />
+          </div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-1">Motivo (opcional)</label>
-          <input name="motivo" className="w-full border rounded-lg px-3 py-2 mb-6" />
+          <div style={{ marginBottom: '24px' }}>
+            <label className="form-label">Motivo (opcional)</label>
+            <input name="motivo" className="form-input" placeholder="Motivo del movimiento" />
+          </div>
 
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '12px' }}>
             <button
               type="button"
               onClick={onCerrar}
-              className="flex-1 bg-slate-100 text-slate-700 rounded-lg py-2 font-medium hover:bg-slate-200 transition"
+              className="btn btn-secondary"
+              style={{ flex: 1, justifyContent: 'center' }}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={mutacion.isPending}
-              className="flex-1 bg-blue-600 text-white rounded-lg py-2 font-medium hover:bg-blue-700 transition disabled:opacity-50"
+              className="btn btn-primary"
+              style={{ flex: 1, justifyContent: 'center' }}
             >
               {mutacion.isPending ? 'Guardando...' : 'Confirmar'}
             </button>

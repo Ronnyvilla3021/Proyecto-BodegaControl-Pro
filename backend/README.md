@@ -1,98 +1,165 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ⚙️ Bodega Control Pro — Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construida con NestJS que centraliza usuarios, inventario, pedidos, entregas, automatización y reportes del sistema Bodega Control Pro.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🛠️ Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS** (TypeScript) — framework backend modular
+- **PostgreSQL** — base de datos relacional
+- **Prisma ORM** — acceso a datos, migraciones y tipado
+- **Passport + JWT** — autenticación
+- **bcrypt** — hash de contraseñas
+- **class-validator / class-transformer** — validación de DTOs
+- **@nestjs/schedule** — tareas programadas (cron jobs)
+- **Nodemailer** — envío de correos
+- **PDFKit** / **ExcelJS** — generación de reportes
 
-## Project setup
+---
+
+## 📂 Estructura de módulos
+
+src/
+├── auth/ → Login, JWT strategy, guards, decorador de roles
+├── usuarios/ → CRUD de usuarios, activar/desactivar
+├── categorias/ → CRUD de categorías de producto
+├── productos/ → CRUD de productos, Kardex, control de stock
+├── clientes/ → CRUD de clientes
+├── pedidos/ → Creación de pedidos, máquina de estados
+├── entregas/ → Confirmación de entregas (foto/firma/GPS)
+├── dashboard/ → Resumen agregado + stream SSE
+├── automatizacion/ → Scheduler, notificaciones, envío de correo
+├── reportes/ → Exportación CSV / Excel / PDF
+└── prisma/ → PrismaService (conexión global a la base de datos)
+
+
+---
+
+## 🔐 Autenticación y roles
+
+El sistema usa JWT con 4 roles: `ADMINISTRADOR`, `BODEGUERO`, `REPARTIDOR`, `SUPERVISOR`.
+
+- `JwtAuthGuard` valida que el token exista y sea válido, y **revalida en cada petición que el usuario siga activo** en base de datos (no solo que el token no haya expirado) — así, si un administrador desactiva a alguien, pierde acceso al instante, no cuando el token expire.
+- `RolesGuard` + el decorador `@Roles(...)` restringen endpoints por rol.
+- El token se acepta tanto por header `Authorization: Bearer <token>` como por query param `?token=<token>` — esto último es necesario para el stream SSE del dashboard y las descargas de reportes, que no pueden mandar headers personalizados.
+
+---
+
+## 🗃️ Modelo de datos (resumen)
+
+| Modelo | Descripción |
+|---|---|
+| `Usuario` | Con rol, estado activo/inactivo |
+| `Categoria` / `Producto` | Relación 1:N, producto con precio (`Decimal`), stock, vencimiento opcional |
+| `MovimientoInventario` | Kardex — registra cada entrada/salida con `stockAntes`/`stockDespues`, usuario y motivo |
+| `Cliente` | Datos de contacto, relación 1:N con Pedido |
+| `Pedido` / `DetallePedido` | Pedido con múltiples ítems, estado, repartidor asignado |
+| `Entrega` | 1:1 con Pedido — foto, firma, ubicación, fecha |
+| `Notificacion` | Generadas por el scheduler (stock bajo, vencimientos, resumen semanal) |
+
+---
+
+## 📡 Endpoints principales
+
+### Auth
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/auth/login` | Login, devuelve JWT + datos de usuario |
+
+### Usuarios
+| Método | Ruta | Rol requerido |
+|---|---|---|
+| POST | `/usuarios` | — |
+| GET | `/usuarios` | Administrador |
+| PATCH | `/usuarios/:id/estado` | Administrador (no puede auto-desactivarse) |
+
+### Productos / Inventario
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/productos` | Crear producto |
+| GET | `/productos` | Listar todos |
+| GET | `/productos/stock-bajo?umbral=10` | Productos por debajo del umbral |
+| GET | `/productos/:id/kardex` | Historial de movimientos del producto |
+| POST | `/productos/:id/movimiento` | Registrar entrada/salida (transaccional) |
+
+### Pedidos
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/pedidos` | Crear con múltiples ítems, calcula total en servidor |
+| GET | `/pedidos` | Listar todos |
+| GET | `/pedidos/mis-pedidos` | Pedidos `EN_RUTA` asignados al repartidor logueado |
+| PATCH | `/pedidos/:id/estado` | Avanza estado (valida la transición) |
+| PATCH | `/pedidos/:id/repartidor` | Asigna repartidor |
+
+### Entregas
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/entregas` | Confirma entrega — solo el repartidor asignado, y solo si el pedido está `EN_RUTA` |
+| GET | `/entregas/pedido/:pedidoId` | Consulta la entrega de un pedido |
+
+### Dashboard
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/dashboard/resumen` | Snapshot único |
+| GET (SSE) | `/dashboard/stream` | Push cada 5s con el resumen actualizado |
+
+### Automatización
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/automatizacion/notificaciones` | Lista de notificaciones generadas |
+| PATCH | `/automatizacion/notificaciones/:id/leida` | Marca como leída |
+| POST | `/automatizacion/probar/stock-bajo` | Dispara manualmente la revisión de stock bajo |
+
+### Reportes
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/reportes/productos/csv` | Exporta inventario en CSV |
+| GET | `/reportes/productos/excel` | Exporta en `.xlsx` |
+| GET | `/reportes/productos/pdf` | Exporta en PDF |
+
+---
+
+## ⏰ Tareas programadas (cron)
+
+| Job | Frecuencia | Acción |
+|---|---|---|
+| Revisión de stock bajo | Diario, 8:00 AM | Crea notificación + correo si hay productos ≤ umbral |
+| Productos por vencer | Diario, 8:15 AM | Avisa productos que vencen en los próximos 7 días |
+| Resumen semanal | Lunes, 7:00 AM | Envía totales de pedidos/entregas de la semana |
+
+---
+
+## 🚀 Instalación
 
 ```bash
-$ npm install
+npm install
+
+# Configura tu .env (ver .env.example)
+npx prisma migrate dev
+npm run start:dev
 ```
 
-## Compile and run the project
+Servidor disponible en `http://localhost:3000`.
 
-```bash
-# development
-$ npm run start
+---
 
-# watch mode
-$ npm run start:dev
+## 🔑 Variables de entorno
 
-# production mode
-$ npm run start:prod
+```env
+DATABASE_URL="postgresql://usuario:password@localhost:5432/bodega_control_pro"
+JWT_SECRET="clave_secreta_larga_y_dificil_de_adivinar"
+JWT_EXPIRES_IN="8h"
+PORT=3000
+EMAIL_USER="correo@gmail.com"
+EMAIL_PASSWORD="contraseña_de_aplicacion_de_gmail"
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 🧠 Decisiones técnicas destacadas
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Transacciones atómicas (`$transaction`)** en todo movimiento de stock: el registro del Kardex y la actualización de stock ocurren juntos o no ocurre ninguno.
+- **Cálculo de precios en el servidor, nunca en el cliente**: al crear un pedido, el precio unitario y el total se calculan con el valor real en base de datos, no con lo que mande el frontend.
+- **Ownership checks en Entregas**: un repartidor solo puede confirmar entregas de pedidos que le fueron asignados a él — se verifica contra el `id` extraído del JWT, nunca contra un dato que venga en el body.
+- **Prisma 6** en vez de la última versión mayor disponible al momento del desarrollo, por estabilidad del driver adapter — decisión documentada tras evaluar bugs conocidos en la release más nueva.

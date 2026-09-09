@@ -48,21 +48,12 @@ export default function Login() {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ 
-            width: '72px', 
-            height: '72px', 
-            borderRadius: '20px', 
-            background: 'linear-gradient(135deg, #2563eb, #1e40af)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '36px',
-            margin: '0 auto 16px',
-            boxShadow: '0 8px 24px rgba(37,99,235,0.3)'
-          }}>
-            🏭
-          </div>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px' }}>
+          <img 
+            src="/logo.png" 
+            alt="Bodega Control Pro" 
+            style={{ width: '64px', height: '64px', margin: '0 auto', display: 'block' }} 
+          />
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', margin: '16px 0 8px' }}>
             BodegaPro
           </h1>
           <p style={{ color: '#64748b', fontSize: '14px', margin: '0' }}>

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   // En emulador Android, 10.0.2.2 apunta al localhost de tu PC.
   // En un teléfono físico por USB, usa la IP local de tu PC en la red WiFi.
-  static const String baseUrl = 'http://192.168.1.8:3000';
+  static const String baseUrl = 'https://proyecto-bodegacontrol-pro.onrender.com';
 
   static Future<String?> obtenerToken() async {
     final prefs = await SharedPreferences.getInstance();

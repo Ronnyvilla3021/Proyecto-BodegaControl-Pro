@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import logo from '/logo.png';
 
 const menuItems = [
   {
@@ -40,7 +41,12 @@ export default function Layout() {
       <aside className="sidebar">
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🏭</div>
+          <img 
+            src={logo} 
+            alt="BodegaPro" 
+            className="sidebar-logo-icon" 
+            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+          />
           <div>
             <div style={{ fontSize: '16px', fontWeight: '700', letterSpacing: '-0.02em' }}>BodegaPro</div>
             <div style={{ fontSize: '11px', opacity: '0.8' }}>Control de Inventario</div>

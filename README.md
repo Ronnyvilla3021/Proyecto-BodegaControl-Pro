@@ -1,3 +1,18 @@
+## 🌐 Demo en vivo
+
+- **Panel Web**: 
+https://tu-dominio-real.vercel.app
+
+
+- **API Backend**: 
+https://proyecto-bodegacontrol-pro.onrender.com
+
+
+- **APK MOBILE**: 
+https://github.com/Ronnyvilla3021/Proyecto-BodegaControl-Pro/releases/tag/v1.0.0
+
+> Nota: el backend usa el plan gratuito de Render, así que la primera petición después de inactividad puede tardar unos 30-50 segundos en "despertar" el servidor.
+
 # 📦 Bodega Control Pro
 
 Sistema integral de gestión de inventario, pedidos y entregas con panel web administrativo, API REST en tiempo real y aplicación móvil para repartidores.

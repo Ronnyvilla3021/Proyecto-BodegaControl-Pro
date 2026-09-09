@@ -13,7 +13,14 @@ https://github.com/Ronnyvilla3021/Proyecto-BodegaControl-Pro/releases/tag/v1.0.0
 
 - ## 🔑 Credenciales de prueba
 
+- WEB
+
 - **Email**: `admin@bodega.com`
+- **Contraseña**: `123456`
+
+- MOBILE
+
+- **Email**: `repartidor@bodega.com`
 - **Contraseña**: `123456`
 
 > Nota: el backend usa el plan gratuito de Render, así que la primera petición después de inactividad puede tardar unos 30-50 segundos en "despertar" el servidor.

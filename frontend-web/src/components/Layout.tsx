@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -29,7 +28,6 @@ const menuItems = [
 export default function Layout() {
   const navigate = useNavigate();
   const { usuario, logout } = useAuthStore();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();

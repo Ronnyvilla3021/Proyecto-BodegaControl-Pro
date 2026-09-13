@@ -59,7 +59,7 @@ export default function Clientes() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+      <div className="text-muted" style={{ textAlign: 'center', padding: '60px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
         <p>Cargando clientes...</p>
       </div>
@@ -88,9 +88,35 @@ export default function Clientes() {
       {/* Formulario */}
       {mostrarForm && (
         <div className="card" style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', marginBottom: '24px' }}>
-            {clienteEditando ? `Editando: ${clienteEditando.nombre}` : 'Nuevo Cliente'}
-          </h2>
+          <div className="divider-bottom" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px',
+            paddingBottom: '16px'
+          }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '12px',
+              background: clienteEditando
+                ? 'linear-gradient(135deg, #f59e0b, #d97706)'
+                : 'linear-gradient(135deg, #2563eb, #1e40af)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '18px',
+              boxShadow: clienteEditando
+                ? '0 4px 12px rgba(245,158,11,0.3)'
+                : '0 4px 12px rgba(37,99,235,0.3)'
+            }}>
+              {clienteEditando ? '✏️' : '👤'}
+            </div>
+            <div>
+              <h2 className="text-strong" style={{ fontSize: '17px', fontWeight: '700', margin: 0 }}>
+                {clienteEditando ? 'Editar Cliente' : 'Nuevo Cliente'}
+              </h2>
+              <p className="text-muted" style={{ fontSize: '13px', margin: '2px 0 0' }}>
+                {clienteEditando ? `Modificando: ${clienteEditando.nombre}` : 'Completa los datos del cliente'}
+              </p>
+            </div>
+          </div>
           <form
             key={clienteEditando?.id ?? 'nuevo'}
             onSubmit={handleSubmit}
@@ -162,10 +188,10 @@ export default function Clientes() {
           <tbody>
             {clientes?.map((c) => (
               <tr key={c.id}>
-                <td style={{ fontWeight: '500' }}>{c.nombre}</td>
-                <td>{c.telefono || '—'}</td>
-                <td>{c.email || '—'}</td>
-                <td>{c.direccion || '—'}</td>
+                <td className="text-strong" style={{ fontWeight: '600' }}>{c.nombre}</td>
+                <td className="text-soft">{c.telefono || '—'}</td>
+                <td className="text-soft">{c.email || '—'}</td>
+                <td className="text-soft">{c.direccion || '—'}</td>
                 <td style={{ textAlign: 'right' }}>
                   <button
                     onClick={() => abrirFormulario(c)}

@@ -70,21 +70,41 @@ export default function FormularioPedido({ onCerrar }: Props) {
   return (
     <div className="modal-overlay" onClick={onCerrar}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>Nuevo Pedido</h2>
+        {/* Header del modal */}
+        <div className="divider-bottom" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '24px',
+          paddingBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '12px',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '20px',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+              flexShrink: 0
+            }}>
+              📋
+            </div>
+            <div>
+              <h2 className="text-strong" style={{ fontSize: '19px', fontWeight: '700', margin: 0 }}>
+                Nuevo Pedido
+              </h2>
+              <p className="text-muted" style={{ fontSize: '13px', margin: '2px 0 0', fontWeight: '500' }}>
+                Completa los datos del pedido
+              </p>
+            </div>
+          </div>
           <button
             onClick={onCerrar}
+            className="btn btn-secondary"
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: '#f1f5f9',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              width: '36px', height: '36px', padding: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '14px', fontWeight: '700', flexShrink: 0
             }}
           >
             ✕
@@ -92,15 +112,23 @@ export default function FormularioPedido({ onCerrar }: Props) {
         </div>
 
         {error && (
-          <div style={{ 
-            background: '#fee2e2', 
-            color: '#991b1b', 
-            borderRadius: '12px', 
-            padding: '12px 16px', 
+          <div className="surface-danger" style={{
+            borderRadius: '12px',
+            padding: '14px 16px',
             fontSize: '14px',
             marginBottom: '20px',
-            border: '1px solid #fecaca'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: '500',
+            color: '#991b1b'
           }}>
+            <span style={{
+              width: '20px', height: '20px', borderRadius: '50%',
+              background: '#dc2626', color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '12px', fontWeight: '700', flexShrink: 0
+            }}>!</span>
             {error}
           </div>
         )}
@@ -124,9 +152,15 @@ export default function FormularioPedido({ onCerrar }: Props) {
 
           <div style={{ marginBottom: '16px' }}>
             <label className="form-label">Productos</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {items.map((item, index) => (
-                <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div key={index} className="surface-soft" style={{
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'center',
+                  padding: '10px',
+                  borderRadius: '12px'
+                }}>
                   <select
                     value={item.productoId}
                     onChange={(e) => actualizarItem(index, 'productoId', Number(e.target.value))}
@@ -146,20 +180,16 @@ export default function FormularioPedido({ onCerrar }: Props) {
                     value={item.cantidad}
                     onChange={(e) => actualizarItem(index, 'cantidad', Number(e.target.value))}
                     className="form-input"
-                    style={{ width: '80px' }}
+                    style={{ width: '80px', textAlign: 'center', fontWeight: '600' }}
                   />
                   <button
                     type="button"
                     onClick={() => quitarItem(index)}
+                    className="btn-chip btn-chip-danger"
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '10px',
-                      background: '#fee2e2',
-                      color: '#ef4444',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '16px'
+                      width: '40px', height: '40px', padding: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '14px', flexShrink: 0
                     }}
                   >
                     ✕
@@ -167,35 +197,48 @@ export default function FormularioPedido({ onCerrar }: Props) {
                 </div>
               ))}
             </div>
-            
+
             <button
               type="button"
               onClick={agregarItem}
+              className="btn btn-secondary"
               style={{
                 marginTop: '12px',
+                width: '100%',
+                justifyContent: 'center',
+                borderStyle: 'dashed',
                 color: '#2563eb',
-                fontSize: '14px',
-                fontWeight: '600',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer'
+                fontWeight: '700'
               }}
             >
               + Agregar producto
             </button>
           </div>
 
-          <div style={{
-            background: '#f8fafc',
-            borderRadius: '12px',
-            padding: '16px 20px',
+          <div className="summary-box" style={{
+            padding: '18px 22px',
             marginBottom: '24px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <span style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Total estimado</span>
-            <span style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>${totalEstimado.toFixed(2)}</span>
+            <div>
+              <span className="summary-label" style={{
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                display: 'block',
+                marginBottom: '2px'
+              }}>
+                Total estimado
+              </span>
+              <span className="text-soft" style={{ fontSize: '12px', fontWeight: '500' }}>
+                {items.filter(i => i.productoId > 0).length} producto{items.filter(i => i.productoId > 0).length !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <span className="summary-value" style={{ fontSize: '26px', letterSpacing: '-0.02em' }}>
+              ${totalEstimado.toFixed(2)}
+            </span>
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>

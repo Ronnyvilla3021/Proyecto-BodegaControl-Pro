@@ -1,105 +1,52 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import logo from '/logo.png';
-
-const menuItems = [
-  {
-    section: 'PRINCIPAL',
-    items: [
-      { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-    ]
-  },
-  {
-    section: 'GESTIÓN',
-    items: [
-      { path: '/inventario', label: 'Inventario', icon: '📦' },
-      { path: '/pedidos', label: 'Pedidos', icon: '🛒' },
-      { path: '/clientes', label: 'Clientes', icon: '👥' },
-    ]
-  },
-  {
-    section: 'ADMINISTRACIÓN',
-    items: [
-      { path: '/usuarios', label: 'Usuarios', icon: '👤' },
-      { path: '/reportes', label: 'Reportes', icon: '📄' },
-    ]
-  }
-];
+import { useState, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
 export default function Layout() {
-  const navigate = useNavigate();
-  const { usuario, logout } = useAuthStore();
+  const [sidebarAbierto, setSidebarAbierto] = useState(false);
+  const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  // Cierra el sidebar al cambiar de ruta (móvil)
+  useEffect(() => {
+    setSidebarAbierto(false);
+  }, [location.pathname]);
+
+  // Bloquea el scroll del body cuando el sidebar está abierto en móvil
+  useEffect(() => {
+    if (sidebarAbierto) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [sidebarAbierto]);
+
+  const cerrarSidebar = () => setSidebarAbierto(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9', width: '100%' }}>
+    <div className="app-shell">
+      {/* Botón hamburguesa (solo móvil) */}
+      <button
+        className="hamburger-btn"
+        onClick={() => setSidebarAbierto(true)}
+        aria-label="Abrir menú"
+      >
+        ☰
+      </button>
+
+      {/* Overlay (solo móvil, cuando el sidebar está abierto) */}
+      <div
+        className={`sidebar-overlay ${sidebarAbierto ? 'visible' : ''}`}
+        onClick={cerrarSidebar}
+      />
+
       {/* Sidebar */}
-      <aside className="sidebar">
-        {/* Logo */}
-        <div className="sidebar-logo">
-          <img 
-            src={logo} 
-            alt="BodegaPro" 
-            className="sidebar-logo-icon" 
-            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
-          />
-          <div>
-            <div style={{ fontSize: '16px', fontWeight: '700', letterSpacing: '-0.02em' }}>BodegaPro</div>
-            <div style={{ fontSize: '11px', opacity: '0.8' }}>Control de Inventario</div>
-          </div>
-        </div>
+      <Sidebar abierto={sidebarAbierto} onCerrar={cerrarSidebar} />
 
-        {/* Navegación */}
-        {menuItems.map((section) => (
-          <div key={section.section} className="sidebar-section">
-            <div className="sidebar-section-title">{section.section}</div>
-            {section.items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `sidebar-item ${isActive ? 'active' : ''}`
-                }
-              >
-                <span className="sidebar-item-icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        ))}
-
-        {/* Footer con usuario */}
-        <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="sidebar-user-avatar">
-              {(usuario?.nombre || 'U').charAt(0).toUpperCase()}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div className="sidebar-user-name">{usuario?.nombre}</div>
-              <div className="sidebar-user-role">{usuario?.rol}</div>
-            </div>
-          </div>
-          <button className="sidebar-logout" onClick={handleLogout}>
-            <span>🔒</span>
-            <span>Cerrar sesión</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Contenido principal - AHORA OCUPA TODO EL ANCHO RESTANTE */}
-      <main style={{ 
-        flex: 1, 
-        marginLeft: '280px', 
-        padding: '32px', 
-        minHeight: '100vh',
-        width: 'calc(100% - 280px)',
-        boxSizing: 'border-box',
-        maxWidth: 'none'
-      }}>
+      {/* Contenido principal */}
+      <main className="main-content">
         <Outlet />
       </main>
     </div>

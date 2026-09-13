@@ -50,7 +50,7 @@ export default function Usuarios() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+      <div className="text-muted" style={{ textAlign: 'center', padding: '60px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
         <p>Cargando usuarios...</p>
       </div>
@@ -77,40 +77,82 @@ export default function Usuarios() {
 
       {/* Stats */}
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className="stat-card">
+        <div className="stat-card" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '4px', height: '100%',
+            background: 'linear-gradient(180deg, #2563eb, #1e40af)'
+          }} />
           <div className="stat-icon" style={{ background: '#dbeafe' }}>👥</div>
           <div className="stat-label">Total usuarios</div>
-          <div className="stat-value" style={{ color: '#1e40af' }}>{total}</div>
+          <div className="stat-value" style={{ color: '#2563eb' }}>{total}</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#d1fae5' }}>✓</div>
+        <div className="stat-card" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '4px', height: '100%',
+            background: 'linear-gradient(180deg, #10b981, #059669)'
+          }} />
+          <div className="stat-icon" style={{ background: '#d1fae5' }}>✅</div>
           <div className="stat-label">Activos ahora</div>
-          <div className="stat-value" style={{ color: '#065f46' }}>{activos}</div>
+          <div className="stat-value" style={{ color: '#10b981' }}>{activos}</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '4px', height: '100%',
+            background: 'linear-gradient(180deg, #f59e0b, #d97706)'
+          }} />
           <div className="stat-icon" style={{ background: '#fef3c7' }}>🚚</div>
           <div className="stat-label">Repartidores</div>
-          <div className="stat-value" style={{ color: '#92400e' }}>{repartidores}</div>
+          <div className="stat-value" style={{ color: '#f59e0b' }}>{repartidores}</div>
         </div>
       </div>
 
       {/* Formulario */}
       {mostrarForm && (
         <div className="card" style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', marginBottom: '24px' }}>
-            {mutacion.isPending ? 'Creando usuario...' : 'Nuevo Usuario'}
-          </h2>
+          <div className="divider-bottom" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px',
+            paddingBottom: '16px'
+          }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '12px',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.3)'
+            }}>
+              👤
+            </div>
+            <div>
+              <h2 className="text-strong" style={{ fontSize: '17px', fontWeight: '700', margin: 0 }}>
+                {mutacion.isPending ? 'Creando usuario...' : 'Nuevo Usuario'}
+              </h2>
+              <p className="text-muted" style={{ fontSize: '13px', margin: '2px 0 0' }}>
+                Añade un nuevo miembro al equipo
+              </p>
+            </div>
+          </div>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
             {error && (
-              <div style={{ 
-                gridColumn: 'span 2', 
-                background: '#fee2e2', 
-                color: '#991b1b', 
-                borderRadius: '12px', 
-                padding: '12px 16px', 
+              <div className="surface-danger" style={{
+                gridColumn: 'span 2',
+                borderRadius: '12px',
+                padding: '14px 16px',
                 fontSize: '14px',
-                border: '1px solid #fecaca'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontWeight: '500',
+                color: '#991b1b'
               }}>
+                <span style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  background: '#dc2626', color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '12px', fontWeight: '700', flexShrink: 0
+                }}>!</span>
                 {error}
               </div>
             )}
@@ -144,42 +186,40 @@ export default function Usuarios() {
       {/* Lista de usuarios */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
         {usuarios?.map((u) => (
-          <div key={u.id} className="card-with-strip" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div className="avatar">
+          <div key={u.id} className="card-with-strip" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+              <div className="avatar" style={{
+                background: u.activo
+                  ? 'linear-gradient(135deg, #2563eb, #1e40af)'
+                  : 'linear-gradient(135deg, #94a3b8, #64748b)',
+                boxShadow: u.activo
+                  ? '0 4px 12px rgba(37,99,235,0.25)'
+                  : '0 4px 12px rgba(100,116,139,0.2)'
+              }}>
                 {u.nombre.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '15px' }}>{u.nombre}</div>
-                <div style={{ fontSize: '13px', color: '#64748b' }}>{u.email}</div>
+              <div style={{ minWidth: 0 }}>
+                <div className="text-strong" style={{ fontWeight: '700', fontSize: '15px' }}>{u.nombre}</div>
+                <div className="text-soft" style={{ fontSize: '13px', fontWeight: '500' }}>{u.email}</div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
               <span className={`badge badge-${colorRol[u.rol]}`}>{u.rol}</span>
               <span className={`badge badge-${u.activo ? 'green' : 'slate'}`}>
                 {u.activo ? 'Activo' : 'Inactivo'}
               </span>
 
               {u.id === usuarioActual?.id ? (
-                <span style={{ fontSize: '13px', color: '#94a3b8', width: '80px', textAlign: 'right' }}>
+                <span className="chip" style={{ width: '100px', textAlign: 'center' }}>
                   Tu cuenta
                 </span>
               ) : (
                 <button
                   onClick={() => mutacionEstado.mutate({ id: u.id, activo: !u.activo })}
                   disabled={mutacionEstado.isPending}
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    color: u.activo ? '#ef4444' : '#10b981',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    width: '80px',
-                    textAlign: 'right',
-                    transition: 'all 0.2s'
-                  }}
+                  className={`btn-chip ${u.activo ? 'btn-chip-danger' : 'btn-chip-success'}`}
+                  style={{ width: '100px', textAlign: 'center' }}
                 >
                   {u.activo ? 'Desactivar' : 'Activar'}
                 </button>

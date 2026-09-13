@@ -1,66 +1,112 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import ThemeToggle from './ThemeToggle';
-import logo from '/logo.png'; // Importar directamente
+import logo from '/logo.png';
 
-const enlaces = [
-  { to: '/dashboard', label: 'Dashboard', roles: ['ADMINISTRADOR', 'BODEGUERO', 'REPARTIDOR', 'SUPERVISOR'] },
-  { to: '/inventario', label: 'Inventario', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
-  { to: '/pedidos', label: 'Pedidos', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
-  { to: '/clientes', label: 'Clientes', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
-  { to: '/mis-entregas', label: 'Mis Entregas', roles: ['REPARTIDOR'] },
-  { to: '/reportes', label: 'Reportes', roles: ['ADMINISTRADOR', 'SUPERVISOR'] },
-  { to: '/usuarios', label: 'Usuarios', roles: ['ADMINISTRADOR'] },
+interface SidebarProps {
+  abierto: boolean;
+  onCerrar: () => void;
+}
+
+const secciones = [
+  {
+    titulo: 'PRINCIPAL',
+    enlaces: [
+      { to: '/dashboard', label: 'Dashboard', icon: '📊', roles: ['ADMINISTRADOR', 'BODEGUERO', 'REPARTIDOR', 'SUPERVISOR'] },
+    ],
+  },
+  {
+    titulo: 'GESTIÓN',
+    enlaces: [
+      { to: '/inventario', label: 'Inventario', icon: '📦', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
+      { to: '/pedidos', label: 'Pedidos', icon: '🛒', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
+      { to: '/clientes', label: 'Clientes', icon: '👥', roles: ['ADMINISTRADOR', 'BODEGUERO', 'SUPERVISOR'] },
+      { to: '/mis-entregas', label: 'Mis Entregas', icon: '🚚', roles: ['REPARTIDOR'] },
+    ],
+  },
+  {
+    titulo: 'ADMINISTRACIÓN',
+    enlaces: [
+      { to: '/usuarios', label: 'Usuarios', icon: '👤', roles: ['ADMINISTRADOR'] },
+      { to: '/reportes', label: 'Reportes', icon: '📄', roles: ['ADMINISTRADOR', 'SUPERVISOR'] },
+    ],
+  },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
   const { usuario, logout } = useAuthStore();
-  const enlacesVisibles = enlaces.filter((e) => usuario && e.roles.includes(usuario.rol));
+
+  const seccionesVisibles = secciones
+    .map((s) => ({
+      ...s,
+      enlaces: s.enlaces.filter((e) => usuario && e.roles.includes(usuario.rol)),
+    }))
+    .filter((s) => s.enlaces.length > 0);
+
+  const handleLogout = () => {
+    onCerrar();
+    logout();
+  };
 
   return (
-    <aside className="w-64 min-h-screen flex flex-col bg-linear-to-b from-[#1e3a5f] to-[#15243c] dark:from-[#0b0e17] dark:to-[#0b0e17] text-white">
-      <div className="p-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img 
-            src={logo} 
-            alt="Bodega Control Pro" 
-            className="w-10 h-10 object-contain" 
+    <aside className={`sidebar ${abierto ? 'open' : ''}`}>
+      {/* Logo + Toggle */}
+      <div className="sidebar-logo">
+        <div className="sidebar-logo-icon">
+          <img
+            src={logo}
+            alt="Bodega Control Pro"
+            style={{ width: '28px', height: '28px', objectFit: 'contain' }}
           />
-          <div>
-            <h1 className="text-lg font-bold tracking-tight">Bodega Control Pro</h1>
-            <p className="text-xs text-white/50 mt-1">{usuario?.nombre}</p>
-            <span className="inline-block mt-2 text-[10px] uppercase tracking-wider bg-white/10 px-2.5 py-1 rounded-full">
-              {usuario?.rol}
-            </span>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '15px', fontWeight: '700', letterSpacing: '-0.02em' }}>
+            BodegaPro
+          </div>
+          <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: 500 }}>
+            Control de Inventario
           </div>
         </div>
         <ThemeToggle />
       </div>
 
-      <nav className="flex-1 px-3 space-y-1 mt-4">
-        {enlacesVisibles.map((enlace) => (
-          <NavLink
-            key={enlace.to}
-            to={enlace.to}
-            className={({ isActive }) =>
-              `block px-4 py-2.5 rounded-2xl text-sm font-medium transition ${
-                isActive
-                  ? 'bg-white/15 text-white shadow-inner'
-                  : 'text-white/60 hover:bg-white/10 hover:text-white'
-              }`
-            }
-          >
-            {enlace.label}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Secciones de navegación */}
+      {seccionesVisibles.map((seccion) => (
+        <div key={seccion.titulo} className="sidebar-section">
+          <div className="sidebar-section-title">{seccion.titulo}</div>
+          {seccion.enlaces.map((enlace) => (
+            <NavLink
+              key={enlace.to}
+              to={enlace.to}
+              onClick={onCerrar}
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="sidebar-item-icon">{enlace.icon}</span>
+              <span>{enlace.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      ))}
 
-      <div className="p-3">
-        <button
-          onClick={logout}
-          className="w-full text-left px-4 py-2.5 rounded-2xl text-sm text-red-300 hover:bg-white/10 transition"
-        >
-          Cerrar sesión
+      {/* Footer */}
+      <div className="sidebar-footer">
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">
+            {(usuario?.nombre || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              className="sidebar-user-name"
+              style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {usuario?.nombre}
+            </div>
+            <div className="sidebar-user-role">{usuario?.rol}</div>
+          </div>
+        </div>
+        <button className="sidebar-logout" onClick={handleLogout}>
+          <span>🔒</span>
+          <span>Cerrar sesión</span>
         </button>
       </div>
     </aside>

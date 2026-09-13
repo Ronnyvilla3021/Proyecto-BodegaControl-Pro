@@ -45,7 +45,7 @@ export default function Inventario() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+      <div className="text-muted" style={{ textAlign: 'center', padding: '60px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
         <p>Cargando inventario...</p>
       </div>
@@ -69,9 +69,31 @@ export default function Inventario() {
       {/* Formulario */}
       {mostrarForm && (
         <div className="card" style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#0f172a', marginBottom: '24px' }}>
-            Nuevo Producto
-          </h2>
+          <div className="divider-bottom" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px',
+            paddingBottom: '16px'
+          }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '12px',
+              background: 'linear-gradient(135deg, #2563eb, #1e40af)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.3)'
+            }}>
+              📦
+            </div>
+            <div>
+              <h2 className="text-strong" style={{ fontSize: '17px', fontWeight: '700', margin: 0 }}>
+                Nuevo Producto
+              </h2>
+              <p className="text-muted" style={{ fontSize: '13px', margin: '2px 0 0' }}>
+                Registra un nuevo artículo en el inventario
+              </p>
+            </div>
+          </div>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
             <div>
               <label className="form-label">Código</label>
@@ -123,10 +145,14 @@ export default function Inventario() {
           <tbody>
             {productos?.map((p) => (
               <tr key={p.id}>
-                <td style={{ fontFamily: 'monospace', fontSize: '13px', color: '#64748b' }}>{p.codigo}</td>
-                <td style={{ fontWeight: '500' }}>{p.nombre}</td>
-                <td>{p.categoria.nombre}</td>
-                <td style={{ fontWeight: '600' }}>${Number(p.precio).toFixed(2)}</td>
+                <td>
+                  <span className="code-tag">{p.codigo}</span>
+                </td>
+                <td className="text-strong" style={{ fontWeight: '600' }}>{p.nombre}</td>
+                <td>
+                  <span className="tag-pill">{p.categoria.nombre}</span>
+                </td>
+                <td className="text-strong" style={{ fontWeight: '700' }}>${Number(p.precio).toFixed(2)}</td>
                 <td>
                   <span className={`badge badge-${p.stock <= 10 ? 'red' : 'green'}`}>
                     {p.stock}

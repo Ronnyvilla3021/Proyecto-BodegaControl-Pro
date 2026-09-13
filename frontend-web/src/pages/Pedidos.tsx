@@ -23,7 +23,7 @@ export default function Pedidos() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+      <div className="text-muted" style={{ textAlign: 'center', padding: '60px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
         <p>Cargando pedidos...</p>
       </div>
@@ -50,15 +50,38 @@ export default function Pedidos() {
           const siguiente = siguienteEstado[pedido.estado];
 
           return (
-            <div key={pedido.id} className="card">
+            <div key={pedido.id} className="card" style={{
+              position: 'relative',
+              overflow: 'hidden',
+              paddingLeft: '28px'
+            }}>
+              {/* Barra lateral de estado */}
+              <div style={{
+                position: 'absolute', top: 0, left: 0, width: '4px', height: '100%',
+                background:
+                  pedido.estado === 'ENTREGADO' ? 'linear-gradient(180deg, #10b981, #059669)' :
+                  pedido.estado === 'EN_RUTA' ? 'linear-gradient(180deg, #3b82f6, #2563eb)' :
+                  pedido.estado === 'EMPACADO' ? 'linear-gradient(180deg, #f59e0b, #d97706)' :
+                  'linear-gradient(180deg, #94a3b8, #64748b)'
+              }} />
+
               {/* Encabezado del pedido */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                <div>
-                  <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '16px' }}>
-                    Pedido #{pedido.id} — {pedido.cliente.nombre}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                  <div className="surface-soft" style={{
+                    width: '40px', height: '40px', borderRadius: '12px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px', flexShrink: 0
+                  }}>
+                    📋
                   </div>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
-                    {new Date(pedido.creadoEn).toLocaleString()}
+                  <div style={{ minWidth: 0 }}>
+                    <div className="text-strong" style={{ fontWeight: '700', fontSize: '16px' }}>
+                      Pedido #{pedido.id} — {pedido.cliente.nombre}
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '13px', marginTop: '2px', fontWeight: '500' }}>
+                      {new Date(pedido.creadoEn).toLocaleString()}
+                    </div>
                   </div>
                 </div>
                 <span className={`badge badge-${colorEstado[pedido.estado]}`}>
@@ -69,26 +92,26 @@ export default function Pedidos() {
               {/* Detalles del pedido */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
                 {pedido.detalles.map((d) => (
-                  <div key={d.id} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    padding: '8px 12px',
-                    background: '#f8fafc',
-                    borderRadius: '10px',
-                    fontSize: '14px'
-                  }}>
-                    <span style={{ color: '#64748b' }}>{d.cantidad}x {d.producto.nombre}</span>
-                    <span style={{ fontWeight: '600', color: '#0f172a' }}>${Number(d.subtotal).toFixed(2)}</span>
+                  <div key={d.id} className="item-box">
+                    <span className="text-soft" style={{ fontWeight: '500', display: 'flex', alignItems: 'center' }}>
+                      <span className="qty-chip">{d.cantidad}x</span>
+                      {d.producto.nombre}
+                    </span>
+                    <span className="text-strong" style={{ fontWeight: '600' }}>${Number(d.subtotal).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
 
               {/* Pie del pedido */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+              <div className="divider" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingTop: '16px'
+              }}>
                 <div>
-                  <span style={{ fontSize: '13px', color: '#64748b' }}>Total: </span>
-                  <span style={{ fontWeight: '800', color: '#0f172a', fontSize: '18px' }}>
+                  <span className="text-soft" style={{ fontSize: '13px', fontWeight: '500' }}>Total: </span>
+                  <span className="text-strong" style={{ fontWeight: '800', fontSize: '18px' }}>
                     ${Number(pedido.total).toFixed(2)}
                   </span>
                 </div>

@@ -15,15 +15,18 @@ export default function Avatar({ nombre }: { nombre: string }) {
       style={{
         width: '48px',
         height: '48px',
-        borderRadius: '50%',
-        background: coloresPorLetra[indiceColor],
+        borderRadius: '14px',
+        background: `linear-gradient(135deg, ${coloresPorLetra[indiceColor]}, ${coloresPorLetra[indiceColor]}cc)`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: 'white',
         fontWeight: '700',
         fontSize: '16px',
-        boxShadow: `0 2px 8px ${coloresPorLetra[indiceColor]}40`
+        letterSpacing: '0.02em',
+        boxShadow: `0 4px 12px ${coloresPorLetra[indiceColor]}40`,
+        flexShrink: 0,
+        border: '2px solid rgba(255,255,255,0.2)'
       }}
     >
       {iniciales}
